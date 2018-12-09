@@ -70,7 +70,7 @@
             let header = 
                 `<section>
                 <h1>My Header</h1>
-                <a href="#">Home</a>
+                <a id="home" href="#">Home</a>
                 <a href="#about">About</a>
                 <a href="#add">Add</a>
                 </section>`;
@@ -103,11 +103,11 @@
                 ${Footer()}`;
         };
 
-        function validateForm() {
-            var author = document.forms["myForm"]["author"].value;
-            var title = document.forms["myForm"]["title"].value;
-            var body = document.forms["myForm"]["body"].value;
-            var key = document.forms["myForm"]["key"].value;
+        function checkForm(e) { 
+            var author = document.forms["theForm"]["author"].value;
+            var title = document.forms["theForm"]["title"].value;
+            var body = document.forms["theForm"]["body"].value;
+            var key = document.forms["theForm"]["key"].value;
 
             var newBlog = {"author":author,"title":title,"body":body};
 
@@ -115,9 +115,12 @@
 
             db.push(newBlog);
 
-            document.querySelector('main').innerHTML = BlogPostList(db);
-            return false;
-        }        
+            //document.querySelector('main').innerHTML = BlogPostList(db);
+            var link = document.getElementById('home');
+            link.click();
+
+            e.returnValue = false; 
+        }         
 
         const BlogPage = () => {
             return `${Header()}
@@ -128,12 +131,12 @@
                     </div>
                 </section>
 
-                <form name="myForm" onsubmit="validateForm()" method="post">
+                <FORM name="theForm" action="index.html#" onSubmit = "return checkForm(event)">
                     key: <input type="text" name="key">
                     author: <input type="text" name="author">
                     title: <input type="text" name="title">
                     body: <input type="text" name="body">
-                    <input type="submit" value="Submit">
+                    <input type="submit" value="save" id="save-btn"/>
                 </form>               
 
                 ${Footer()}`;
