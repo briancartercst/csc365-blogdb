@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <title>Blog Example</title>
+  <meta charset="utf-8">
+
+<style>
+  section, div {
+    padding: 15px;
+  }
+</style>
+
+</head>
+
+<body>
+    <main></main>
+
+    <script>
+        let db = [];
+        
+        function mapToJson(map) {
+            return JSON.stringify([...map]);
+        }
+
+        function jsonToMap(jsonStr) {
+            return new Map(JSON.parse(jsonStr));
+        }
+        
+        const mapToObj = (map) => {
+            let obj = Object.create(null);
+            for (let [k,v] of map) {
+                obj[k] = v;
+            }
+            return obj;
+        }
+
+        const objToMap = (obj) => {
+            let strMap = new Map();
+            for (let k of Object.keys(obj)) {
+                strMap.set(k, obj[k]);
+            }
+            return strMap;
+        }        
+
+        //const getBlogs = async () => {
+        const getBlogs = () => {
+                const response = fetch('http://localhost:8080/api')
+                  const myJson = response.json(); //extract JSON from the http response  
+                return objToMap(myJson);
+        };
+
+        const saveBlog = (key, blog) => {
+            var x = [];
+            x.push(key);
+            x.push(blog);
+
+            const response = fetch('http://localhost:8080/api', {
+                method: 'POST',
+                body: JSON.stringify(x), // string or object
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+        };
+
+        const Header = () => {
+            let header = 
+                `<section>
+                <h1>My Header</h1>
+                <a href="#">Home</a>
+                <a href="#about">About</a>
+                <a href="#add">Add</a>
+                </section>`;
+
+                return header;
+        }
+
+        const Footer = () => `<div>My Footer</div>`;
+
+        const BlogPost = (postData) => {
+            let post =
+                `<section>
+                <h2>${postData.title}</h2>
+                <p>${postData.body}</p>
+                <small>${postData.author}</small>
+                </section>`
+
+            return post;
+        }
+
+
+        const AboutPage = () => {
+        return `${Header()}
+                <section>
+                    <div>
+                    <h2>Welcome to my blog!</h2>
+                    <p>It's about lorem ipsum dolor sit amet, consectetur ad...</p>
+                    </div>
+                </section>
+                ${Footer()}`;
+        };
+
+        function validateForm() {
+            var author = document.forms["myForm"]["author"].value;
+            var title = document.forms["myForm"]["title"].value;
+            var body = document.forms["myForm"]["body"].value;
+            var key = document.forms["myForm"]["key"].value;
+
+            var newBlog = {"author":author,"title":title,"body":body};
+
+            saveBlog(key, newBlog);
+
+            db.push(newBlog);
+
+            document.querySelector('main').innerHTML = BlogPostList(db);
+            return false;
+        }        
+
+        const BlogPage = () => {
+            return `${Header()}
+                <section>
+                    <div>
+                    <h2>Add Blog Entry</h2>
+                    <p>It's about lorem ipsum dolor sit amet, consectetur ad...</p>
+                    </div>
+                </section>
+
+                <form name="myForm" onsubmit="validateForm()" method="post">
+                    key: <input type="text" name="key">
+                    author: <input type="text" name="author">
+                    title: <input type="text" name="title">
+                    body: <input type="text" name="body">
+                    <input type="submit" value="Submit">
+                </form>               
+
+                ${Footer()}`;
+        };        
+
+        const Page404 = () => {
+        return `${Header()}
+                <section>
+                    <div>
+                        <h2>404</h2>
+                        <p>The requested path could not be found</p>
+                    </div>
+                </section>
+                ${Footer()}`;
+        }
+
+
+        const BlogPostList = (posts) => `${Header()} <div> ${posts.map(BlogPost).join('')} </div> ${Footer()}`
+
+        let router = (location) => {
+                switch (location.hash) {
+                case "#about":
+                    document.querySelector('main').innerHTML = AboutPage();
+                    break;
+                case "#add":
+                    document.querySelector('main').innerHTML = BlogPage();
+                    break;
+                case "":
+                    fetch('./api')
+                        .then(
+                            function(response) {
+                                if (response.status !== 200) {
+                                    console.log('Looks like there was a problem. Status Code: ' +
+                                    response.status);
+                                    return;
+                                }
+
+                                // Examine the text in the response
+                                response.json().then(function(data) {
+                                    console.log(data);
+                                    db = [... objToMap(data).values()];                                    
+                                    
+                                    document.querySelector('main').innerHTML = BlogPostList(db);
+
+                                    //document.querySelector('main').innerHTML = `${Header()} <div> ${posts.map(BlogPost).join('')} </div> ${Footer()}`;
+                                });
+                            }                          
+                        )
+                        .catch(function(err) {
+                            console.log('Fetch Error :-S', err);
+                        });
+                    
+                    break;
+                default:
+                    document.querySelector('main').innerHTML = Page404();
+                    break;
+                }
+            }
+
+        router(location);
+
+        window.onhashchange = function() {
+          router(location);
+        };        
+
+    </script>
+    
+</body>
+
+</html>

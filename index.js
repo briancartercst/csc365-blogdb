@@ -6,9 +6,12 @@ const app = express();
 const port = process.env.PORT || 8080;
 const bodyParser = require('body-parser');
 
+// use public directory for static files
+app.use(express.static('public'))
+
 // init db
 const database = require('./dbMap');
-let db = database.init('[["1","This is blog 1"],["2","This is blog 2"],["3","This is blog 3"]]');
+let db = database.init('[["2", {"author":"Brian Carter", "title":"Advanced Node.js", "body":"Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit."}]]');
 
 // add middleware we need
 app.use(bodyParser.json()); // support json encoded bodies
@@ -26,7 +29,7 @@ app.use((req, res, next) => {
 app.set('json spaces', 2); // number of spaces for indentation
 
 // http://localhost:8080
-app.get('/', (req, res) => res.send('API for data store'));
+//app.get('/', (req, res) => res.send('API for data store'));
 
 // http://localhost:8080/health
 app.get('/health', (req, res) => {
